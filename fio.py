@@ -9,6 +9,7 @@ import argparse
 import platform
 from influxdb_client import InfluxDBClient, Point
 
+
 def create_bucket(client, bucket_name, org):
     try:
         buckets_api = client.buckets_api()

@@ -7,7 +7,7 @@ docker run -d --name=influxdb -p 8086:8086 influxdb:latest
 http://localhost:8086
 Setup the account details
 Copy the token:
-6Ml1fy9kJDtt4oYfPUQnRJHQW0qQp96G40mkhoNUu7NuBkKaXnUDSr7oi6pwD3n8Li00qkjoPF7r6XWbWZrCKg==
+xIu-pvVTqaJEcsVoBCPYJNDtgen6opk1homaO4vkc-cCBgN9s_7lrarhAQvyMwE97QsvROSEFuyXsDIju-hdyA==
 
 
 docker build -t fio-nvme-influxdb-rockylinux .

@@ -88,9 +88,19 @@ def fioinput(ip, port, database, org, token, hostname, jobfile):
                             }
                         ]
 
-                        write_api.write(bucket=database, record=json_body)
+                        # Log the JSON data
+                        with open("json_data.log", "w") as f:
+                            f.write(json.dumps(json_body, indent=4))
+                        # Check the write operation
+                        try:
+                            write_api.write(bucket=database, record=json_body)
+                        except Exception as e:
+                            print(f"Error writing to InfluxDB: {e}")
                 except json.JSONDecodeError as e:
                     print(f"Error decoding JSON: {e}")
+                    print(f"Buffer content: {buffer}")
+                except Exception as e:
+                    print(f"Error: {e}")
                     print(f"Buffer content: {buffer}")
 
 

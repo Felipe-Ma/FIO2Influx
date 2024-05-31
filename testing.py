@@ -4,7 +4,8 @@ import os
 import sys
 import time
 from datetime import datetime
-from influxdb_client import InfluxDBClient, InfluxDBError
+from influxdb_client import InfluxDBClient
+from influxdb_client.rest import ApiException
 
 
 def create_bucket_if_not_exists(client, bucket_name, org):
@@ -17,7 +18,7 @@ def create_bucket_if_not_exists(client, bucket_name, org):
             print(f"Bucket {bucket_name} created successfully.")
         else:
             print(f"Bucket {bucket_name} already exists.")
-    except InfluxDBError as e:
+    except ApiException as e:
         print(f"Error creating bucket: {e}")
 
 

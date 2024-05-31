@@ -22,32 +22,22 @@ def create_bucket_if_not_exists(client, bucket_name, org):
         print(f"Error creating bucket: {e}")
 
 
-def write_to_influxdb(db_name, org, token, job):
+def write_to_influxdb(db_name, org, token, timestamp, read_speed_mb, completion_latency):
     client = InfluxDBClient(url="http://localhost:8086", token=token, org=org)
     create_bucket_if_not_exists(client, db_name, org)
     write_api = client.write_api()
-
-    hostname = job.get('hostname', 'unknown')
-    jobname = job['jobname']
-    current_time = datetime.utcnow().isoformat()
-    read = job['read']
-
-    clat_mean = read.get('clat', {}).get('mean', None)
-    if clat_mean is not None:
-        clat_mean /= 1000  # Convert to ms
 
     json_body = [
         {
             "measurement": "FIO",
             "tags": {
-                "runId": jobname,
-                "hostname": hostname
+                "runId": "fio_run",
+                "hostname": "localhost"
             },
-            "time": current_time,
+            "time": timestamp,
             "fields": {
-                "Read_IOPS": read['iops'],
-                "Read_bandwidth_(MB/s)": read['bw'],
-                "Completion_Latency_ms": clat_mean if clat_mean is not None else "N/A"
+                "Read_bandwidth_(MB/s)": read_speed_mb,
+                "Completion_Latency_ms": completion_latency if completion_latency is not None else "N/A"
             }
         }
     ]
@@ -95,12 +85,12 @@ def run_fio(job_file, db_name, org, token):
                             completion_latency = clat.get('mean', 0) / 1000 if 'mean' in clat else None
 
                             read_speed_mb = read_speed / 1024
-                            timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+                            timestamp = datetime.utcnow().isoformat()
 
                             print(
                                 f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms" if completion_latency is not None else f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s")
 
-                            write_to_influxdb(db_name, org, token, job)
+                            write_to_influxdb(db_name, org, token, timestamp, read_speed_mb, completion_latency)
                     except json.JSONDecodeError:
                         pass
 
@@ -119,4 +109,3 @@ if __name__ == "__main__":
     org = input("Enter the organization: ")
     fio_job_file = input("Enter the FIO job file path: ")
     run_fio(fio_job_file, db_name, org, token)
-    # Code works at this point but numbers are off

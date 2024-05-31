@@ -132,7 +132,7 @@ def main():
     # Get OS host name
     hostname = platform.uname()[1]
 
-    fioinput(args.ip, args.port, args.database, args.org, args.token, hostname, args.jobfilei)
+    fioinput(args.ip, args.port, args.database, args.org, args.token, hostname, args.jobfile)
 
     print("\n\nJob complete\n")
 

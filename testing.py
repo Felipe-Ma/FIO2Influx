@@ -4,25 +4,26 @@ import os
 import sys
 import time
 from datetime import datetime
-from influxdb_client import InfluxDBClient
+from influxdb_client import InfluxDBClient, InfluxDBError
 
 
-def create_bucket(client, bucket_name, org):
+def create_bucket_if_not_exists(client, bucket_name, org):
     try:
         buckets_api = client.buckets_api()
         org_id = client.organizations_api().find_organizations(org=org)[0].id
-        bucket = buckets_api.create_bucket(bucket_name=bucket_name, org_id=org_id)
-        print(f"Bucket {bucket_name} created successfully.")
-    except Exception as e:
-        if 'bucket already exists' in str(e).lower():
-            print(f"Bucket {bucket_name} already exists.")
+        buckets = buckets_api.find_buckets().buckets
+        if not any(bucket.name == bucket_name for bucket in buckets):
+            buckets_api.create_bucket(bucket_name=bucket_name, org_id=org_id)
+            print(f"Bucket {bucket_name} created successfully.")
         else:
-            raise e
+            print(f"Bucket {bucket_name} already exists.")
+    except InfluxDBError as e:
+        print(f"Error creating bucket: {e}")
 
 
 def write_to_influxdb(db_name, org, token, job):
     client = InfluxDBClient(url="http://localhost:8086", token=token, org=org)
-    create_bucket(client, db_name, org)
+    create_bucket_if_not_exists(client, db_name, org)
     write_api = client.write_api()
 
     hostname = job.get('hostname', 'unknown')

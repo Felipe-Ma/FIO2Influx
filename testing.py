@@ -30,6 +30,10 @@ def write_to_influxdb(db_name, org, token, job):
     current_time = datetime.utcnow().isoformat()
     read = job['read']
 
+    clat_mean = read.get('clat', {}).get('mean', None)
+    if clat_mean is not None:
+        clat_mean /= 1000  # Convert to ms
+
     json_body = [
         {
             "measurement": "FIO",
@@ -41,7 +45,7 @@ def write_to_influxdb(db_name, org, token, job):
             "fields": {
                 "Read_IOPS": read['iops'],
                 "Read_bandwidth_(MB/s)": read['bw'],
-                "Completion_Latency_ms": read['clat']['mean'] / 1000  # Assuming clat mean is in microseconds
+                "Completion_Latency_ms": clat_mean if clat_mean is not None else "N/A"
             }
         }
     ]
@@ -86,13 +90,13 @@ def run_fio(job_file, db_name, org, token):
 
                             read_speed = job['read'].get('bw', 0)
                             clat = job['read'].get('clat', {})
-                            completion_latency = clat.get('mean', 0) / 1000
+                            completion_latency = clat.get('mean', 0) / 1000 if 'mean' in clat else None
 
                             read_speed_mb = read_speed / 1024
                             timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 
                             print(
-                                f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms")
+                                f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms" if completion_latency is not None else f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s")
 
                             write_to_influxdb(db_name, org, token, job)
                     except json.JSONDecodeError:

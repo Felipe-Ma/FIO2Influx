@@ -15,7 +15,9 @@ def run_fio(fio_job_file):
 # Function to write FIO result to InfluxDB
 def write_to_influxdb(db_name, token, org, fio_result):
     client = InfluxDBClient(url="http://localhost:8086", token=token)
-    write_api = client.write_api(write_options=WritePrecision.NS)
+    #write_api = client.write_api(write_options=WritePrecision.NS)
+    write_api = client.write_api(write_options=WriteOptions(batch_size=1))
+
 
     for job in fio_result['jobs']:
         point = Point("fio") \

@@ -83,7 +83,8 @@ def fioinput(ip, port, database, org, token, hostname, jobfile):
                                 "time": current_time,
                                 "fields": {
                                     "Read_Speed": read_speed,
-                                    "Completion_Latency": clat
+                                    "Completion_Latency": clat,
+                                    "Test": "FIO"
                                 }
                             }
                         ]

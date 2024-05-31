@@ -59,6 +59,7 @@ def write_to_influxdb(db_name, org, token, fio_result):
 
         write_api.write(bucket=db_name, record=json_body)
 
+    write_api.__del__()  # Explicitly call the destructor to flush all pending writes
     client.close()
     print("FIO result written to InfluxDB.")
 

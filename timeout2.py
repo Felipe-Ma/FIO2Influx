@@ -8,7 +8,6 @@ from influxdb_client import InfluxDBClient
 from datetime import datetime
 
 
-
 # Function to create a bucket if it doesn't exist
 def create_bucket(client, bucket_name, org):
     try:
@@ -22,6 +21,7 @@ def create_bucket(client, bucket_name, org):
         else:
             raise e
 
+
 def run_fio(job_file, output_csv):
     try:
         # Check if the script is run as root
@@ -29,7 +29,7 @@ def run_fio(job_file, output_csv):
             print("This script must be run as root.")
             sys.exit(1)
 
-        #Create a bucket in InfluxDB
+        # Create a bucket in InfluxDB
         client = InfluxDBClient(url="http://localhost:8086", token="my-token", org="Solidigm")
         create_bucket(client, "fio_results", "Solidigm")
         write_api = client.write_api()
@@ -66,28 +66,29 @@ def run_fio(job_file, output_csv):
                             # Parse the JSON output from FIO
                             fio_output = json.loads(buffer)
                             buffer = ""  # Clear the buffer after successful JSON parsing
-                            
+
                             if 'jobs' in fio_output and len(fio_output['jobs']) > 0:
                                 job = fio_output['jobs'][0]
-                                
+
                                 # Extract the sequential read speeds
                                 read_speed = job['read'].get('bw', 0)  # in KiB/s
-                                
+
                                 # Extract the completion latency
                                 clat = job['read'].get('clat', {})
                                 completion_latency = clat.get('mean', 0) / 1000  # Convert to ms
-                                
+
                                 # Convert to MB/s
                                 read_speed_mb = read_speed / 1024
-                                
+
                                 # Get the current timestamp
                                 timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 
                                 # Write to CSV
                                 writer.writerow([timestamp, f"{read_speed_mb:.2f}", f"{completion_latency:.2f}"])
-                                
+
                                 # Print to terminal
-                                print(f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms")
+                                print(
+                                    f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms")
 
                                 # Write to InfluxDB
                                 current_time = datetime.utcnow().isoformat()
@@ -121,8 +122,9 @@ def run_fio(job_file, output_csv):
         print("An unexpected error occurred:")
         print(e)
 
+
 if __name__ == "__main__":
-    job_file = 'golden_fio.fio'  # Path to your existing FIO job file
+    job_file = 'fio_job.fio'  # Path to your existing FIO job file
     output_csv = 'fio_output.csv'  # Path to the output CSV file
     # Create a new bucket in InfluxDB
 

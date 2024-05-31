@@ -81,14 +81,18 @@ def run_fio(job_file, db_name, org, token):
                             job = fio_output['jobs'][0]
 
                             read_speed = job['read'].get('bw', 0)
-                            clat = job['read'].get('clat', {})
-                            completion_latency = clat.get('mean', 0) / 1000 if 'mean' in clat else None
+                            clat_ns = job['read'].get('clat_ns', {})
+                            completion_latency = clat_ns.get('mean',
+                                                             0) / 1000000 if 'mean' in clat_ns else None  # Convert to ms
 
                             read_speed_mb = read_speed / 1024
                             timestamp = datetime.utcnow().isoformat()
 
-                            print(
-                                f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms" if completion_latency is not None else f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s")
+                            if completion_latency is not None:
+                                print(
+                                    f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms")
+                            else:
+                                print(f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s")
 
                             write_to_influxdb(db_name, org, token, timestamp, read_speed_mb, completion_latency)
                     except json.JSONDecodeError:
@@ -109,4 +113,3 @@ if __name__ == "__main__":
     org = input("Enter the organization: ")
     fio_job_file = input("Enter the FIO job file path: ")
     run_fio(fio_job_file, db_name, org, token)
-    # Sequential Reads seems to be working!!

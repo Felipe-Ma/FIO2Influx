@@ -119,3 +119,4 @@ if __name__ == "__main__":
     org = input("Enter the organization: ")
     fio_job_file = input("Enter the FIO job file path: ")
     run_fio(fio_job_file, db_name, org, token)
+    # Code works at this point but numbers are off

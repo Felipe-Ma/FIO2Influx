@@ -4,6 +4,23 @@ import os
 import sys
 import csv
 import time
+from influxdb_client import InfluxDBClient
+from datetime import datetime
+
+
+
+# Function to create a bucket if it doesn't exist
+def create_bucket(client, bucket_name, org):
+    try:
+        buckets_api = client.buckets_api()
+        org_id = client.organizations_api().find_organizations(org=org)[0].id
+        bucket = buckets_api.create_bucket(bucket_name=bucket_name, org_id=org_id)
+        print(f"Bucket {bucket_name} created successfully.")
+    except Exception as e:
+        if 'bucket already exists' in str(e).lower():
+            print(f"Bucket {bucket_name} already exists.")
+        else:
+            raise e
 
 def run_fio(job_file, output_csv):
     try:
@@ -11,6 +28,11 @@ def run_fio(job_file, output_csv):
         if os.geteuid() != 0:
             print("This script must be run as root.")
             sys.exit(1)
+
+        #Create a bucket in InfluxDB
+        client = InfluxDBClient(url="http://localhost:8086", token="my-token", org="Solidigm")
+        create_bucket(client, "fio_results", "Solidigm")
+        write_api = client.write_api()
 
         # Environment variable to disable output buffering
         env = os.environ.copy()
@@ -66,6 +88,26 @@ def run_fio(job_file, output_csv):
                                 
                                 # Print to terminal
                                 print(f"Timestamp: {timestamp}, Sequential Read Speed: {read_speed_mb:.2f} MB/s, Completion Latency: {completion_latency:.2f} ms")
+
+                                # Write to InfluxDB
+                                current_time = datetime.utcnow().isoformat()
+                                json_body = [
+                                    {
+                                        "measurement": "FIO",
+                                        "tags": {
+                                            "runId": job['jobname'],
+                                            "hostname": job.get('hostname', 'unknown')
+                                        },
+                                        "time": current_time,
+                                        "fields": {
+                                            "Read_Speed": read_speed_mb,
+                                            "Completion_Latency": completion_latency
+                                        }
+                                    }
+                                ]
+                                write_api.write(bucket="fio_results", record=json_body)
+
+
                         except json.JSONDecodeError:
                             # Skip this line if it's not a complete JSON object
                             pass
@@ -80,7 +122,9 @@ def run_fio(job_file, output_csv):
         print(e)
 
 if __name__ == "__main__":
-    job_file = '../../Downloads/fio_job.fio'  # Path to your existing FIO job file
+    job_file = 'fio_job.fio'  # Path to your existing FIO job file
     output_csv = 'fio_output.csv'  # Path to the output CSV file
+    # Create a new bucket in InfluxDB
+
     run_fio(job_file, output_csv)
 

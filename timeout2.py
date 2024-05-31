@@ -122,7 +122,7 @@ def run_fio(job_file, output_csv):
         print(e)
 
 if __name__ == "__main__":
-    job_file = 'fio_job.fio'  # Path to your existing FIO job file
+    job_file = 'golden_fio.fio'  # Path to your existing FIO job file
     output_csv = 'fio_output.csv'  # Path to the output CSV file
     # Create a new bucket in InfluxDB
 

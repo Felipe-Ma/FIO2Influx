@@ -39,7 +39,7 @@ def write_to_influxdb(db_name, org, token, fio_result):
         hostname = job.get('hostname', 'unknown')
         jobname = job['jobname']
         current_time = datetime.utcnow().isoformat()
-
+        #
         read = job['read']
 
         json_body = [

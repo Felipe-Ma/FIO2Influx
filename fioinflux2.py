@@ -1,14 +1,13 @@
 import subprocess
 import json
-import time
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-
+from influxdb_client import InfluxDBClient
+from datetime import datetime
 
 # Function to run FIO and process output in real-time
 def run_fio_and_stream_results(fio_job_file, db_name, token, org):
     client = InfluxDBClient(url="http://localhost:8086", token=token, org=org)
     create_bucket(client, db_name, org)
-    write_api = client.write_api(write_options=WritePrecision.NS)
+    write_api = client.write_api()
 
     process = subprocess.Popen(['fio', '--output-format=json', fio_job_file], stdout=subprocess.PIPE, text=True)
 
@@ -19,7 +18,8 @@ def run_fio_and_stream_results(fio_job_file, db_name, token, org):
         if output:
             try:
                 fio_result = json.loads(output.strip())
-                write_fio_result_to_influxdb(write_api, db_name, fio_result)
+                if "jobs" in fio_result:
+                    write_fio_result_to_influxdb(write_api, db_name, fio_result)
             except json.JSONDecodeError:
                 continue
 
@@ -27,7 +27,6 @@ def run_fio_and_stream_results(fio_job_file, db_name, token, org):
     write_api.__del__()
     client.close()
     print("FIO result written to InfluxDB.")
-
 
 # Function to create a bucket if it doesn't exist
 def create_bucket(client, bucket_name, org):
@@ -41,7 +40,6 @@ def create_bucket(client, bucket_name, org):
             print(f"Bucket {bucket_name} already exists.")
         else:
             raise e
-
 
 # Function to write FIO result to InfluxDB
 def write_fio_result_to_influxdb(write_api, db_name, fio_result):
@@ -68,7 +66,6 @@ def write_fio_result_to_influxdb(write_api, db_name, fio_result):
         ]
 
         write_api.write(bucket=db_name, record=json_body)
-
 
 # Main script
 if __name__ == "__main__":

@@ -89,8 +89,9 @@ def fioinput(ip, port, database, org, token, hostname, jobfile):
                         ]
 
                         write_api.write(bucket=database, record=json_body)
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}")
+                    print(f"Buffer content: {buffer}")
 
 
 

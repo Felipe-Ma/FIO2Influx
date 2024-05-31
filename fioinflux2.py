@@ -1,18 +1,32 @@
 import subprocess
 import json
-from influxdb_client import InfluxDBClient
-from datetime import datetime
+import time
+from influxdb_client import InfluxDBClient, Point, WritePrecision
 
 
-# Function to run FIO and get the result as JSON
-def run_fio(fio_job_file):
-    try:
-        result = subprocess.run(['fio', '--output-format=json', fio_job_file], capture_output=True, text=True)
-        result.check_returncode()
-        return json.loads(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"Error running FIO: {e}")
-        return None
+# Function to run FIO and process output in real-time
+def run_fio_and_stream_results(fio_job_file, db_name, token, org):
+    client = InfluxDBClient(url="http://localhost:8086", token=token, org=org)
+    create_bucket(client, db_name, org)
+    write_api = client.write_api(write_options=WritePrecision.NS)
+
+    process = subprocess.Popen(['fio', '--output-format=json', fio_job_file], stdout=subprocess.PIPE, text=True)
+
+    while True:
+        output = process.stdout.readline()
+        if process.poll() is not None:
+            break
+        if output:
+            try:
+                fio_result = json.loads(output.strip())
+                write_fio_result_to_influxdb(write_api, db_name, fio_result)
+            except json.JSONDecodeError:
+                continue
+
+    # Ensure all pending writes are flushed
+    write_api.__del__()
+    client.close()
+    print("FIO result written to InfluxDB.")
 
 
 # Function to create a bucket if it doesn't exist
@@ -30,16 +44,12 @@ def create_bucket(client, bucket_name, org):
 
 
 # Function to write FIO result to InfluxDB
-def write_to_influxdb(db_name, org, token, fio_result):
-    client = InfluxDBClient(url="http://localhost:8086", token=token, org=org)
-    create_bucket(client, db_name, org)
-    write_api = client.write_api()
-
+def write_fio_result_to_influxdb(write_api, db_name, fio_result):
     for job in fio_result['jobs']:
         hostname = job.get('hostname', 'unknown')
         jobname = job['jobname']
         current_time = datetime.utcnow().isoformat()
-        #
+
         read = job['read']
 
         json_body = [
@@ -59,10 +69,6 @@ def write_to_influxdb(db_name, org, token, fio_result):
 
         write_api.write(bucket=db_name, record=json_body)
 
-    write_api.__del__()  # Explicitly call the destructor to flush all pending writes
-    client.close()
-    print("FIO result written to InfluxDB.")
-
 
 # Main script
 if __name__ == "__main__":
@@ -71,9 +77,4 @@ if __name__ == "__main__":
     org = input("Enter the organization: ")
     fio_job_file = input("Enter the FIO job file path: ")
 
-    fio_result = run_fio(fio_job_file)
-
-    if fio_result:
-        write_to_influxdb(db_name, org, token, fio_result)
-    else:
-        print("Failed to run FIO or get the result.")
+    run_fio_and_stream_results(fio_job_file, db_name, token, org)

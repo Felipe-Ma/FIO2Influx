@@ -1,6 +1,6 @@
 import subprocess
 import json
-from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client import InfluxDBClient
 from datetime import datetime
 
 
@@ -15,10 +15,25 @@ def run_fio(fio_job_file):
         return None
 
 
+# Function to create a bucket if it doesn't exist
+def create_bucket(client, bucket_name, org):
+    try:
+        buckets_api = client.buckets_api()
+        org_id = client.organizations_api().find_organizations(org=org)[0].id
+        bucket = buckets_api.create_bucket(bucket_name=bucket_name, org_id=org_id)
+        print(f"Bucket {bucket_name} created successfully.")
+    except Exception as e:
+        if 'bucket already exists' in str(e).lower():
+            print(f"Bucket {bucket_name} already exists.")
+        else:
+            raise e
+
+
 # Function to write FIO result to InfluxDB
-def write_to_influxdb(db_name, token, org, fio_result):
-    client = InfluxDBClient(url="http://localhost:8086", token=token)
-    write_api = client.write_api(write_options=WritePrecision.NS)
+def write_to_influxdb(db_name, org, token, fio_result):
+    client = InfluxDBClient(url="http://localhost:8086", token=token, org=org)
+    create_bucket(client, db_name, org)
+    write_api = client.write_api()
 
     for job in fio_result['jobs']:
         hostname = job.get('hostname', 'unknown')
@@ -42,7 +57,7 @@ def write_to_influxdb(db_name, token, org, fio_result):
             }
         ]
 
-        write_api.write(bucket=db_name, org=org, record=json_body)
+        write_api.write(bucket=db_name, record=json_body)
 
     client.close()
     print("FIO result written to InfluxDB.")
@@ -58,6 +73,6 @@ if __name__ == "__main__":
     fio_result = run_fio(fio_job_file)
 
     if fio_result:
-        write_to_influxdb(db_name, token, org, fio_result)
+        write_to_influxdb(db_name, org, token, fio_result)
     else:
         print("Failed to run FIO or get the result.")

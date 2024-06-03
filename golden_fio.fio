@@ -1,7 +1,7 @@
 [global]
 ioengine=libaio
 direct=1
-runtime=20
+runtime=432000
 time_based
 filename=/dev/nvme1n1
 

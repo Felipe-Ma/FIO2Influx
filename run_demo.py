@@ -108,9 +108,9 @@ def run_fio(job_file, db_name, org, token):
 
 
 if __name__ == "__main__":
-    db_name = input("Demo_Final")
-    token = input("e27AQIH9zEPTcs9Ke32DsI14nZvYLHlbHZnqTYpYAXUoSIn3W6YQ0MY50sPrxqLPNn8OqT0lTIudwcS_1sS-qw==")
-    org = input("Solidigm")
-    fio_job_file = input("golden_fio.fio")
+    db_name = "Demo_Final"
+    token = "e27AQIH9zEPTcs9Ke32DsI14nZvYLHlbHZnqTYpYAXUoSIn3W6YQ0MY50sPrxqLPNn8OqT0lTIudwcS_1sS-qw=="
+    org = "Solidigm"
+    fio_job_file = "golden_fio.fio"
     run_fio(fio_job_file, db_name, org, token)
     # CLAT is working!!!

@@ -23,7 +23,8 @@ def create_bucket_if_not_exists(client, bucket_name, org):
 
 
 def write_to_influxdb(db_name, org, token, timestamp, read_speed_mb, completion_latency):
-    client = InfluxDBClient(url="http://localhost:8086", token=token, org=org)
+    client = InfluxDBClient(url="http://influxdb:8086", token=token, org=org)
+    #client = InfluxDBClient(url="http://influxdb:8086", token=token, org=org)
     create_bucket_if_not_exists(client, db_name, org)
     write_api = client.write_api()
 
@@ -109,7 +110,8 @@ def run_fio(job_file, db_name, org, token):
 
 if __name__ == "__main__":
     db_name = "Demo_Final"
-    token = "e27AQIH9zEPTcs9Ke32DsI14nZvYLHlbHZnqTYpYAXUoSIn3W6YQ0MY50sPrxqLPNn8OqT0lTIudwcS_1sS-qw=="
+    token = "KatsyB_5cbDtXoyOn61qoTkBS-KcjdEyb32arfjI9x4DOY8kI8BWX5ex2qwPMDzcHQYu-yRDOFfwdHvzpN_c6w=="
+    # token = "e27AQIH9zEPTcs9Ke32DsI14nZvYLHlbHZnqTYpYAXUoSIn3W6YQ0MY50sPrxqLPNn8OqT0lTIudwcS_1sS-qw=="
     org = "Solidigm"
     fio_job_file = "golden_fio.fio"
     run_fio(fio_job_file, db_name, org, token)

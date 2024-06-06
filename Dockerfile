@@ -12,6 +12,8 @@ RUN pip install -r requirements.txt
 
 # Copy run_demo.py into the container
 COPY run_demo.py .
+# Copy golden_fio.file into the container
+COPY golden_fio.fio .
 
 # Install fio
 RUN apt-get update && apt-get install -y fio

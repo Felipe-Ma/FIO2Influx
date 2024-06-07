@@ -14,4 +14,4 @@ docker build -t fio-nvme-influxdb-rockylinux .
 docker run --rm -it --privileged --device=/dev/nvme0n1 --device=/dev/nvme0 -v /dev:/dev --entrypoint /bin/bash fio-nvme-influxdb-rockylinux
 
 fio fio_job.fio --status-interval=1 --minimal | ./fio.py -token O09BxvpJtbLrMTsRb6ML_jNalgx_UA8A8yDTxahvT6-kpUoAYhX2l_2UUpzqM2gva1iQ7ygeAOU1vo7WVczNAA== -org Solidigm -database Anant -token O09BxvpJtbLrMTsRb6ML_jNalgx_UA8A8yDTxahvT6-kpUoAYhX2l_2UUpzqM2gva1iQ7ygeAOU1vo7WVczNAA==
-
+ #test push

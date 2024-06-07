@@ -31,3 +31,4 @@ jobs:
 
     - name: Push the Docker image
       run: docker push my-dockerhub-username/my-image-name:${{ steps.extract_version.outputs.VERSION }}
+

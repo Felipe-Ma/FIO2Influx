@@ -97,31 +97,43 @@ iodepth=256
 docker run --name fio-influxdb-container --network my_network -v D:\\testfile:/testfile fio-influxdb-app
 
 ```
-## FAQ
+## Documentation
 
-#### Question 1
+### FIO Job File
+The FIO job file is used to define the parameters for the I/O test. Here is an explanation of a sample job file:
 
-Answer 1
+```ini
+[global]
+ioengine=libaio
+direct=1
+runtime=60
+time_based
+filename=dev/nvme1n1
 
-#### Question 2
-
-Answer 2
-
-
-## Features
-
-- Light/dark mode toggle
-- Live previews
-- Fullscreen mode
-- Cross platform
-
-
-## Installation
-
-Install my-project with npm
-
-```bash
-  npm install my-project
-  cd my-project
+[read]
+rw=read
+bs=128k
+numjobs=1
+iodepth=256
 ```
+
+* **[global] Section:** Parameters here apply to all jobs unless overridden.
+    * **ioengine=libaio:** Specifies the I/O engine. `libaio` is the Linux asynchronous I/O engine.
+    * **direct=1:** Enables the direct I/O bypassomg the OS cache.
+    * **runtime=64:** Sets the test duration to 64 seconds.
+    * **time_based:** Ensures the test runs for the specified runtime.
+    * **filename=/dev/nvme1n1:** Target device or file for the test.
+
+
+* **[read] Section:** Defines a read job. 
+    * **rw=read:** Specifies sequential read operations.
+    * **bs=128k:** Block size for I/O operations.
+    * **numjobs=1:** Number of threads/jobs.
+    * **iodepth=256:** I/O depth (number of I/O operations to queue)
     
+    ### Viewing Write Values
+    If the job is definer with `rw=read`, only read operations will be performed, and write values will be zero. To measure write performance, you need to define a separate job or modify the existing write operations.
+
+```ini
+
+```

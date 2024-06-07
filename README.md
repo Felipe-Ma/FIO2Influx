@@ -19,7 +19,7 @@ This project is used to run FIO tests and visually see performances with graphs.
 Insert gif or link to demo
 
 ### Database being updates in real-time.
-![](https://github.com/Felipe-Ma/FIO2Influx/media/demo.gif)
+![](https://github.com/Felipe-Ma/FIO2Influx/blob/main/media/demo.gif)
 ## Deployment
 
 ### Step1: Clone the repository

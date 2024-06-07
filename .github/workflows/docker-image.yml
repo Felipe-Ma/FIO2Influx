@@ -27,10 +27,11 @@ jobs:
       id: set_version
       run: |
         if [[ $GITHUB_REF == refs/tags/* ]]; then
-          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          VERSION=${GITHUB_REF#refs/tags/}
         else
-          echo "VERSION=latest" >> $GITHUB_ENV
+          VERSION=latest
         fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag felipema/fio-insight:${{ env.VERSION }}

@@ -2,7 +2,6 @@ import subprocess
 import json
 import os
 import sys
-import time
 from datetime import datetime
 from influxdb_client import InfluxDBClient
 from influxdb_client.rest import ApiException
@@ -109,10 +108,22 @@ def run_fio(job_file, db_name, org, token):
 
 
 if __name__ == "__main__":
-    db_name = "Demo_Final"
-    token = "KatsyB_5cbDtXoyOn61qoTkBS-KcjdEyb32arfjI9x4DOY8kI8BWX5ex2qwPMDzcHQYu-yRDOFfwdHvzpN_c6w=="
-    # token = "e27AQIH9zEPTcs9Ke32DsI14nZvYLHlbHZnqTYpYAXUoSIn3W6YQ0MY50sPrxqLPNn8OqT0lTIudwcS_1sS-qw=="
-    org = "Solidigm"
-    fio_job_file = "golden_fio.fio"
+    db_name = os.getenv("DB_NAME")
+    token = os.getenv("INFLUXDB_TOKEN")
+    org = os.getenv("INFLUXDB_ORG")
+    fio_job_file = os.getenv("FIO_JOB_FILE")
+
+    if not db_name:
+        print("Error: DB_NAME environment variable not set.")
+        sys.exit(1)
+    if not token:
+        print("Error: INFLUXDB_TOKEN environment variable not set.")
+        sys.exit(1)
+    if not org:
+        print("Error: INFLUXDB_ORG environment variable not set.")
+        sys.exit(1)
+    if not fio_job_file:
+        print("Error: FIO_JOB_FILE environment variable not set.")
+        sys.exit(1)
+
     run_fio(fio_job_file, db_name, org, token)
-    # CLAT is working!!!

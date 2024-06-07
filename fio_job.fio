@@ -1,0 +1,13 @@
+[global]
+ioengine=libaio
+direct=1
+runtime=60
+time_based
+filename=D:/testfile
+size=100M
+
+[read]
+rw=read
+bs=128k
+numjobs=1
+iodepth=256

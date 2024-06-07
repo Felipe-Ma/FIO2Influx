@@ -24,11 +24,10 @@ jobs:
 
     - name: Extract version from tag
       id: extract_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/heads/}
+      run: echo "VERSION=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-dockerhub-username/my-image-name:${{ steps.extract_version.outputs.VERSION }}
+      run: docker build . --file Dockerfile --tag felipema/fio-insight:${{ env.VERSION }}
 
     - name: Push the Docker image
-      run: docker push my-dockerhub-username/my-image-name:${{ steps.extract_version.outputs.VERSION }}
-
+      run: docker push felipema/fio-insight:${{ env.VERSION }}

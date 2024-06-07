@@ -3,3 +3,13 @@ git tag v1.0.0
 git push origin v1.0.0
 
 Docker will now push this version
+
+# Things I have done to add to resume for this project
+- Used Github Actions to automate workflow, creating docker containers
+- Created docker containers for easy deployment
+- Used Docker to create mutliple versions of the application
+- Used Docker to create a production ready container
+#Used Docker to create a development container
+- Created an application that uses a database and a web server to view FIO data
+- Created an application that was used at HPE Discover 2024 and demonstrated to thousands of people
+-  

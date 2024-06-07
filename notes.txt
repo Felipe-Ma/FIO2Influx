@@ -1,17 +1,5 @@
-# Build the image
-docker build -t fio-rockylinux .
-docker pull influxdb:latest
+How to create a version in docker
+git tag v1.0.0
+git push origin v1.0.0
 
-# Run InfluxDB
-docker run -d --name=influxdb -p 8086:8086 influxdb:latest
-http://localhost:8086
-Setup the account details
-Copy the token:
-xIu-pvVTqaJEcsVoBCPYJNDtgen6opk1homaO4vkc-cCBgN9s_7lrarhAQvyMwE97QsvROSEFuyXsDIju-hdyA==
-
-
-docker build -t fio-nvme-influxdb-rockylinux .
-docker run --rm -it --privileged --device=/dev/nvme0n1 --device=/dev/nvme0 -v /dev:/dev --entrypoint /bin/bash fio-nvme-influxdb-rockylinux
-
-fio fio_job.fio --status-interval=1 --minimal | ./fio.py -token O09BxvpJtbLrMTsRb6ML_jNalgx_UA8A8yDTxahvT6-kpUoAYhX2l_2UUpzqM2gva1iQ7ygeAOU1vo7WVczNAA== -org Solidigm -database Anant -token O09BxvpJtbLrMTsRb6ML_jNalgx_UA8A8yDTxahvT6-kpUoAYhX2l_2UUpzqM2gva1iQ7ygeAOU1vo7WVczNAA==
- #test pushs
+Docker will now push this version

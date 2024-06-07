@@ -8,13 +8,18 @@ This project is used to run FIO tests and visually see performances with graphs.
 
 ## Table of Contents
 
-1. [Deployment](#Deployment)
+1. [Demo](#Demo)
+2. [Deployment](#Deployment)
+3. [Usage/Examples](#Usage/Examples)
+4. [Documentation](#Documentation)
+
 
 ## Demo
 
 Insert gif or link to demo
 
-
+### Database being updates in real-time.
+![](https://github.com/Felipe-Ma/FIO2Influx/media/demo.gif)
 ## Deployment
 
 ### Step1: Clone the repository
@@ -48,9 +53,19 @@ Insert gif or link to demo
 2. Follow the setup instructions to create an initial user, organization, and bucket
 3. Note down the authentication token, organization name, and bucket name
 
-### Step7: Build the Docker Image
+### Step7: Build the Docker Image of FIOInsight
 ```bash
-  docker build -t fio-insight-app .
+  docker build -t fio-insight-app:1.0 .
+```
+
+### Step8: Run the FIOInsight COntianer on the network created 
+```bash
+ docker run --name fio-insight-container --network <your_network> -v <host_directory>:/testfile \
+  -e DB_NAME=<your_db_name> \
+  -e INFLUXDB_TOKEN=<your_influxdb_token> \
+  -e INFLUXDB_ORG=<your_influxdb_org> \
+  -e FIO_JOB_FILE=<your_fio_job_file> \
+  fio-insight-app:1.0
 ```
 
 
@@ -92,10 +107,14 @@ iodepth=256
 
 ### Step2: Run the Docker Container
 
-#### Windows
+#### Windows Usage Example
 ```sh
-docker run --name fio-influxdb-container --network my_network -v D:\\testfile:/testfile fio-influxdb-app
-
+ docker run --name fio-insight-container --network my_network -v /d/testfile:/testfile \
+  -e DB_NAME=Demo_Final \
+  -e INFLUXDB_TOKEN=KatsyB_5cbDtXoyOn61qoTkBS-KcjdEyb32arfjI9x4DOY8kI8BWX5ex2qwPMDzcHQYu-yRDOFfwdHvzpN_c6w== \
+  -e INFLUXDB_ORG=Solidigm \
+  -e FIO_JOB_FILE=fio_job.fio \
+  fio-insight-app:1.0
 ```
 ## Documentation
 
